@@ -109,5 +109,10 @@ cli.add_command(tenant_commands, name='tenant')
 cli.add_command(device_commands, name='device')
 
 
-if __name__ == '__main__':
+def main():
+    """Entry point for the tailops CLI application."""
     cli()
+
+
+if __name__ == '__main__':
+    main()
