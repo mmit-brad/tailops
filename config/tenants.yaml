@@ -1,0 +1,30 @@
+# tailops Configuration File
+# Multi-tenant Tailscale management configuration
+
+tenants:
+  # Example tenant configuration
+  # Replace with your actual tenant information
+  
+  # client1:
+  #   name: "Client 1 Corporation"
+  #   api_key: "tskey-api-xxxxxxxxxxxxxxxxxx"
+  #   tailnet: "client1.ts.net"
+  #   description: "Primary client with office network"
+  #   settings:
+  #     auto_approve: false
+  #     dns_enabled: true
+  
+  # client2:
+  #   name: "Client 2 LLC" 
+  #   api_key: "tskey-api-yyyyyyyyyyyyyyyyyy"
+  #   tailnet: "client2.ts.net"
+  #   description: "Secondary client with remote workers"
+  #   settings:
+  #     auto_approve: true
+  #     dns_enabled: false
+
+# Configuration Notes:
+# - api_key: Get from Tailscale admin console > Settings > Keys
+# - tailnet: Your tailnet name (usually org-name.ts.net)
+# - settings.auto_approve: Automatically approve new devices
+# - settings.dns_enabled: Enable MagicDNS for the tailnet
