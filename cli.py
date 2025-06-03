@@ -26,6 +26,7 @@ try:
     from tailops.api import TailscaleAPI
     from tailops.commands.tenant import tenant_commands
     from tailops.commands.device import device_commands
+    from tailops.commands.secrets import secrets_commands
     from tailops.utils.output import success, error, info, warning
 except ImportError as e:
     logger.error(f"Failed to import tailops modules: {e}")
@@ -100,13 +101,14 @@ def status(ctx):
 @cli.command()
 def version():
     """Show version information."""
-    click.echo("tailops v1.1.0")
+    click.echo("tailops v1.2.0")
     click.echo("Multi-tenant Tailscale management toolkit")
 
 
 # Register command groups
 cli.add_command(tenant_commands, name='tenant')
 cli.add_command(device_commands, name='device')
+cli.add_command(secrets_commands, name='secrets')
 
 
 def main():

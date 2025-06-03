@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tailops"
-version = "1.1.0"
+version = "1.2.0"
 description = "Enterprise multi-tenant Tailscale management platform for MSPs"
 readme = "README.md"
 license = "MIT"
@@ -51,6 +51,7 @@ dependencies = [
     "click>=8.0.0",
     "tabulate>=0.9.0",
     "colorama>=0.4.4",
+    "cryptography>=3.4.8",
 ]
 
 [project.optional-dependencies]

@@ -66,12 +66,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Normalized data structures for consistent API responses
 - Maintained backward compatibility with existing table output
 
+## [1.2.0] - 2025-06-02
+
+### Added
+- **Configuration Encryption**: Enterprise-grade security for sensitive configuration data
+  - `tailops secrets encrypt` - Encrypt configuration files with AES-256 encryption
+  - `tailops secrets decrypt` - Decrypt configuration files securely
+  - `tailops secrets info` - View encryption metadata and file information
+  - `tailops secrets verify` - Verify file integrity and password validity
+  - `tailops secrets rotate` - Change encryption passwords securely
+  - `tailops secrets migrate` - Convert plain text configs to encrypted format
+- **PBKDF2 Key Derivation**: Industry-standard password-based encryption with 100,000+ iterations
+- **Audit Logging**: Complete audit trail of encryption/decryption operations in `~/.tailops/logs/secrets.log`
+- **Multiple Password Sources**: Support for environment variables (`TAILOPS_SECRET`) and interactive prompts
+- **Atomic Operations**: Safe file operations with backup creation and rollback capability
+- **Password Strength Validation**: Enforced minimum password requirements
+- **Secure File Permissions**: Automatic setting of restrictive file permissions (600)
+
+### Security
+- **Fernet Encryption**: AES-128 in CBC mode with HMAC-SHA256 for authenticated encryption
+- **Salt-based Protection**: Unique salt per file prevents rainbow table attacks
+- **Integrity Verification**: Built-in tamper detection and corruption prevention
+- **Metadata Protection**: Encrypted files include version info and encryption parameters
+- **Secure Cleanup**: Temporary files are properly cleaned up on failure
+
+### Technical
+- Added `cryptography>=3.4.8` dependency for encryption functionality
+- Enhanced CLI with comprehensive secrets management commands
+- Professional error handling with specific security-focused error messages
+- Cross-platform compatibility with proper path handling
+
 ## [Unreleased]
 
-### Planned for v1.2.0
-- [ ] Configuration file encryption
-- [ ] Automated API key rotation
+### Planned for v1.3.0
+- [ ] Automated API key rotation with audit logging
 - [ ] Additional Tailscale API coverage (ACLs, DNS)
+- [ ] Configuration auto-decryption for seamless encrypted workflow
 
 ### Planned for v1.2.0
 - [ ] Web-based dashboard (read-only)

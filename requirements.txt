@@ -3,3 +3,4 @@ PyYAML
 click
 tabulate
 colorama
+cryptography>=3.4.8
