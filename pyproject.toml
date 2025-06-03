@@ -7,7 +7,7 @@ name = "tailops"
 version = "1.0.0"
 description = "Enterprise multi-tenant Tailscale management platform for MSPs"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
     {name = "Brad Goetsch", email = "brad@modernmanagedit.com"},
 ]
@@ -31,7 +31,6 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: System Administrators",
     "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
