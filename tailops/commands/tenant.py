@@ -8,6 +8,7 @@ from typing import Dict, Any
 
 from ..api import TailscaleAPI
 from ..utils.output import success, error, info, warning, print_table, confirm, prompt
+from ..utils.formatter import OutputFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +20,9 @@ def tenant_commands():
 
 
 @tenant_commands.command('list')
+@click.option('--json', 'output_json', is_flag=True, help='Output in JSON format')
 @click.pass_context
-def list_tenants(ctx):
+def list_tenants(ctx, output_json):
     """List all configured tenants."""
     try:
         config = ctx.obj.config
@@ -30,27 +32,50 @@ def list_tenants(ctx):
         
         tenants = config['tenants']
         
-        headers = ['Name', 'Tailnet', 'Status', 'Description']
-        rows = []
+        # Prepare data for output formatter
+        tenants_data = []
         
         for tenant_name, tenant_config in tenants.items():
             tailnet = tenant_config.get('tailnet', 'unknown')
-            description = tenant_config.get('name', tenant_config.get('description', '-'))
             
             # Test connection to determine status
             try:
                 api = TailscaleAPI(tenant_config['api_key'], tailnet)
                 if api.test_connection():
-                    status = "✓ Connected"
+                    status = "connected"
+                    status_display = "✓ Connected"
                 else:
-                    status = "✗ Failed"
+                    status = "failed"
+                    status_display = "✗ Failed"
             except Exception:
-                status = "✗ Error"
+                status = "error"
+                status_display = "✗ Error"
             
-            rows.append([tenant_name, tailnet, status, description])
+            tenant_data = OutputFormatter.normalize_tenant_data(tenant_name, tenant_config, status)
+            tenant_data['status_display'] = status_display
+            tenants_data.append(tenant_data)
         
-        print_table(headers, rows)
-        info(f"Total tenants: {len(tenants)}")
+        # Use formatter for output
+        formatter = OutputFormatter("json" if output_json else "table")
+        if output_json:
+            formatter.output_tenants(tenants_data)
+        else:
+            if not tenants_data:
+                warning("No tenants configured")
+                return
+            
+            headers = ['Name', 'Tailnet', 'Status', 'Description']
+            rows = []
+            for tenant in tenants_data:
+                rows.append([
+                    tenant['name'],
+                    tenant['tailnet'],
+                    tenant['status_display'],
+                    tenant.get('display_name', tenant.get('description', '-'))
+                ])
+            
+            print_table(headers, rows)
+            info(f"Total tenants: {len(tenants)}")
         
     except Exception as e:
         error(f"Failed to list tenants: {e}")
@@ -219,8 +244,9 @@ def remove_tenant(ctx, tenant_name, force):
 
 @tenant_commands.command('test')
 @click.argument('tenant_name', required=False)
+@click.option('--json', 'output_json', is_flag=True, help='Output in JSON format')
 @click.pass_context
-def test_tenant(ctx, tenant_name):
+def test_tenant(ctx, tenant_name, output_json):
     """Test API connection for tenant(s)."""
     try:
         config = ctx.obj.config
@@ -240,21 +266,49 @@ def test_tenant(ctx, tenant_name):
         else:
             test_tenants = tenants
         
-        headers = ['Tenant', 'Status', 'Devices', 'Message']
-        rows = []
+        test_results = []
         
         for name, tenant_config in test_tenants.items():
             try:
                 api = TailscaleAPI(tenant_config['api_key'], tenant_config['tailnet'])
                 devices = api.get_devices()
-                rows.append([name, "✓ Connected", len(devices), "OK"])
+                test_results.append({
+                    "tenant": name,
+                    "status": "connected",
+                    "status_display": "✓ Connected",
+                    "device_count": len(devices),
+                    "message": "OK"
+                })
                 
             except ValueError as e:
-                rows.append([name, "✗ Failed", "-", str(e)])
+                test_results.append({
+                    "tenant": name,
+                    "status": "failed",
+                    "status_display": "✗ Failed",
+                    "device_count": None,
+                    "message": str(e)
+                })
             except Exception as e:
-                rows.append([name, "✗ Error", "-", str(e)])
+                test_results.append({
+                    "tenant": name,
+                    "status": "error",
+                    "status_display": "✗ Error",
+                    "device_count": None,
+                    "message": str(e)
+                })
         
-        print_table(headers, rows)
+        # Use formatter for output
+        formatter = OutputFormatter("json" if output_json else "table")
+        if output_json:
+            formatter.output_test_results(test_results)
+        else:
+            headers = ['Tenant', 'Status', 'Devices', 'Message']
+            rows = []
+            for result in test_results:
+                device_count = result['device_count'] if result['device_count'] is not None else "-"
+                rows.append([result['tenant'], result['status_display'], device_count, result['message']])
+            
+            print_table(headers, rows)
         
     except Exception as e:
         error(f"Failed to test tenant(s): {e}")

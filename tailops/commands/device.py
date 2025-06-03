@@ -9,6 +9,7 @@ from datetime import datetime
 
 from ..api import TailscaleAPI
 from ..utils.output import success, error, info, warning, print_table, confirm, prompt
+from ..utils.formatter import OutputFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +23,9 @@ def device_commands():
 @device_commands.command('list')
 @click.option('--tenant', help='Filter by specific tenant')
 @click.option('--status', type=click.Choice(['online', 'offline', 'all']), default='all', help='Filter by device status')
+@click.option('--json', 'output_json', is_flag=True, help='Output in JSON format')
 @click.pass_context
-def list_devices(ctx, tenant, status):
+def list_devices(ctx, tenant, status, output_json):
     """List devices across all tenants or for a specific tenant."""
     try:
         config = ctx.obj.config
@@ -42,8 +44,8 @@ def list_devices(ctx, tenant, status):
         else:
             selected_tenants = tenants
         
-        headers = ['Tenant', 'Device Name', 'IP Address', 'Status', 'OS', 'Last Seen']
-        rows = []
+        # Collect all device data
+        devices_data = []
         
         for tenant_name, tenant_config in selected_tenants.items():
             try:
@@ -51,39 +53,44 @@ def list_devices(ctx, tenant, status):
                 devices = api.get_devices()
                 
                 for device in devices:
-                    device_name = device.get('name', 'Unknown')
-                    ip_address = ', '.join(device.get('addresses', []))
-                    online = device.get('online', False)
-                    device_status = "Online" if online else "Offline"
-                    os_info = device.get('os', 'Unknown')
-                    
-                    # Parse last seen
-                    last_seen = device.get('lastSeen', '')
-                    if last_seen:
-                        try:
-                            dt = datetime.fromisoformat(last_seen.replace('Z', '+00:00'))
-                            last_seen_str = dt.strftime('%Y-%m-%d %H:%M')
-                        except:
-                            last_seen_str = last_seen
-                    else:
-                        last_seen_str = 'Never'
+                    # Normalize device data
+                    device_data = OutputFormatter.normalize_device_data(tenant_name, device)
                     
                     # Apply status filter
                     if status != 'all':
-                        if (status == 'online' and not online) or (status == 'offline' and online):
+                        device_online = device_data['status'] == 'online'
+                        if (status == 'online' and not device_online) or (status == 'offline' and device_online):
                             continue
                     
-                    rows.append([tenant_name, device_name, ip_address, device_status, os_info, last_seen_str])
+                    devices_data.append(device_data)
                     
             except Exception as e:
                 error(f"Failed to get devices for tenant '{tenant_name}': {e}")
                 continue
         
-        if rows:
-            print_table(headers, rows)
-            info(f"Total devices: {len(rows)}")
+        # Use formatter for output
+        formatter = OutputFormatter("json" if output_json else "table")
+        if output_json:
+            formatter.output_devices(devices_data)
         else:
-            warning("No devices found")
+            if not devices_data:
+                warning("No devices found")
+                return
+            
+            headers = ['Tenant', 'Device Name', 'IP Address', 'Status', 'OS', 'Last Seen']
+            rows = []
+            for device in devices_data:
+                rows.append([
+                    device['tenant'],
+                    device['name'],
+                    device['ip_address_display'],
+                    device['status'].title(),
+                    device['os'],
+                    device['last_seen_display']
+                ])
+            
+            print_table(headers, rows)
+            info(f"Total devices: {len(devices_data)}")
             
     except Exception as e:
         error(f"Failed to list devices: {e}")

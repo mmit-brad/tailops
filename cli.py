@@ -100,7 +100,7 @@ def status(ctx):
 @cli.command()
 def version():
     """Show version information."""
-    click.echo("tailops v1.0.0")
+    click.echo("tailops v1.1.0")
     click.echo("Multi-tenant Tailscale management toolkit")
 
 

@@ -48,11 +48,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Package data inclusion for config templates
 - CI/CD ready configuration
 
+## [1.1.0] - 2025-06-02
+
+### Added
+- **JSON Output Format**: Added `--json` flag to all major commands for automation and RMM integration
+  - `tailops tenant list --json` - JSON output for tenant listing
+  - `tailops device list --json` - JSON output for device listing
+  - `tailops tenant test --json` - JSON output for connectivity testing
+- **OutputFormatter System**: Professional output formatting with auto-detection for piped/redirected output
+- **Consistent JSON Schema**: Standardized JSON structure across all commands with timestamps and metadata
+- **Auto-Detection**: Automatic JSON format when output is piped or redirected for seamless automation
+- **RMM Integration Ready**: Machine-readable output perfect for monitoring and management systems
+
+### Technical
+- Added `tailops/utils/formatter.py` with comprehensive output formatting
+- Enhanced command structure to support multiple output formats
+- Normalized data structures for consistent API responses
+- Maintained backward compatibility with existing table output
+
 ## [Unreleased]
 
-### Planned for v1.1.0
-- [ ] PyPI package distribution
-- [ ] JSON output format for all commands
+### Planned for v1.2.0
 - [ ] Configuration file encryption
 - [ ] Automated API key rotation
 - [ ] Additional Tailscale API coverage (ACLs, DNS)
