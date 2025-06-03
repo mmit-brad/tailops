@@ -96,12 +96,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Professional error handling with specific security-focused error messages
 - Cross-platform compatibility with proper path handling
 
+## [1.3.0] - 2025-06-02
+
+### Added
+- **API Key Rotation System**: Complete lifecycle management for Tailscale API keys
+  - `tailops key list` - Display API key status and validity for all tenants
+  - `tailops key rotate --tenant <name>` - Safely rotate API key for specific tenant
+  - `tailops key rotate-all` - Bulk rotation across all tenants with configurable delays
+  - `tailops key test` - Validate API key permissions and connectivity
+  - `tailops key archive` - Archive old rotation logs for compliance
+- **Safe Rotation Workflow**: Enterprise-grade key rotation with rollback capability
+- **Audit Logging**: Complete rotation history in `~/.tailops/logs/rotation.log`
+- **Dry-Run Mode**: Preview all changes with `--dry-run` flag before execution
+- **Batch Processing**: Controlled bulk operations with configurable delays
+- **Permission Testing**: Comprehensive API key validation and capability checking
+
+### Security
+- **Atomic Operations**: New keys tested before old keys are retired
+- **Rollback Safety**: Configuration updates only occur after successful validation
+- **Audit Compliance**: Detailed logging of all key rotation activities
+- **Zero-Downtime**: Keys remain functional during rotation process
+- **Encrypted Config Support**: Seamless integration with encrypted configuration files
+
+### Enterprise Features
+- **MSP-Scale Operations**: Bulk rotation across hundreds of client tenants
+- **Change Management**: Dry-run capabilities for operational approval workflows
+- **Compliance Logging**: Timestamped audit trails for security compliance
+- **Automated Scheduling**: Foundation for future automated rotation schedules
+- **Progress Tracking**: Real-time feedback during bulk operations
+
+### Technical
+- Enhanced Tailscale API client with comprehensive key management endpoints
+- Professional error handling with specific rollback procedures
+- Integration with existing encryption and configuration systems
+- Cross-platform rotation log management and archival
+
 ## [Unreleased]
 
-### Planned for v1.3.0
-- [ ] Automated API key rotation with audit logging
-- [ ] Additional Tailscale API coverage (ACLs, DNS)
-- [ ] Configuration auto-decryption for seamless encrypted workflow
+### Planned for v1.4.0
+- [ ] Scheduled automatic key rotation with configurable intervals
+- [ ] Integration with external secret management systems (Vault, etc.)
+- [ ] Additional Tailscale API coverage (ACLs, DNS management)
+- [ ] Enhanced notification system for rotation events
 
 ### Planned for v1.2.0
 - [ ] Web-based dashboard (read-only)

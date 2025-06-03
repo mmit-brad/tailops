@@ -164,3 +164,126 @@ class TailscaleAPI:
         except Exception as e:
             logger.error(f"Connection test failed: {e}")
             return False
+    
+    # API Key Management Methods
+    
+    def list_api_keys(self) -> List[Dict[str, Any]]:
+        """List all API keys for the tailnet."""
+        endpoint = f"tailnet/{self.tailnet}/keys"
+        response = self._request('GET', endpoint)
+        return response.get('keys', [])
+    
+    def create_api_key(self, description: str = None, expiry_seconds: int = None) -> Dict[str, Any]:
+        """
+        Create a new API key.
+        
+        Args:
+            description: Optional description for the key
+            expiry_seconds: Optional expiry time in seconds from now
+            
+        Returns:
+            Dictionary containing the new key information
+        """
+        endpoint = f"tailnet/{self.tailnet}/keys"
+        data = {
+            'capabilities': {
+                'devices': {
+                    'create': {
+                        'reusable': False,
+                        'ephemeral': False,
+                        'preauthorized': True
+                    }
+                }
+            }
+        }
+        
+        if description:
+            data['description'] = description
+        if expiry_seconds:
+            data['expirySeconds'] = expiry_seconds
+        
+        return self._request('POST', endpoint, json=data)
+    
+    def delete_api_key(self, key_id: str) -> bool:
+        """
+        Delete/expire an API key.
+        
+        Args:
+            key_id: The ID of the key to delete
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            endpoint = f"tailnet/{self.tailnet}/keys/{key_id}"
+            self._request('DELETE', endpoint)
+            return True
+        except Exception:
+            return False
+    
+    def get_api_key_info(self, key_id: str) -> Dict[str, Any]:
+        """
+        Get information about a specific API key.
+        
+        Args:
+            key_id: The ID of the key
+            
+        Returns:
+            Dictionary containing key information
+        """
+        endpoint = f"tailnet/{self.tailnet}/keys/{key_id}"
+        return self._request('GET', endpoint)
+    
+    def test_api_key_permissions(self, test_key: str = None) -> Dict[str, Any]:
+        """
+        Test API key permissions and connectivity.
+        
+        Args:
+            test_key: Optional key to test (defaults to current key)
+            
+        Returns:
+            Dictionary with test results
+        """
+        from datetime import datetime
+        
+        original_key = None
+        if test_key:
+            original_key = self.api_key
+            self.api_key = test_key
+            # Update session headers
+            self.session.headers.update({
+                'Authorization': f'Bearer {test_key}'
+            })
+        
+        try:
+            # Test basic connectivity
+            devices = self.get_devices()
+            keys = self.get_tailnet_keys()
+            
+            result = {
+                'valid': True,
+                'can_list_devices': True,
+                'can_manage_keys': True,
+                'device_count': len(devices),
+                'key_count': len(keys),
+                'tested_at': datetime.utcnow().isoformat() + 'Z'
+            }
+            
+        except Exception as e:
+            result = {
+                'valid': False,
+                'error': str(e),
+                'can_list_devices': False,
+                'can_manage_keys': False,
+                'tested_at': datetime.utcnow().isoformat() + 'Z'
+            }
+        
+        finally:
+            if original_key:
+                self.api_key = original_key
+                # Restore original headers
+                self.session.headers.update({
+                    'Authorization': f'Bearer {original_key}'
+                })
+        
+        return result
