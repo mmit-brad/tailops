@@ -425,11 +425,11 @@ For MSPs requiring enterprise support:
 - Professional services and training
 - SLA-backed support agreements
 
-Contact: [enterprise@tailops.dev](mailto:enterprise@tailops.dev)
+Contact: [brad@modernmanagedit.com](mailto:brad@modernmanagedit.com)
 
 ### Reporting Security Issues
 
-Security vulnerabilities should be reported privately to [security@tailops.dev](mailto:security@tailops.dev).
+Security vulnerabilities should be reported privately to [brad@modernmanagedit.com](mailto:brad@modernmanagedit.com).
 
 **Please do not** report security issues through public GitHub issues.
 

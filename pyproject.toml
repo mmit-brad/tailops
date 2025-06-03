@@ -9,10 +9,10 @@ description = "Enterprise multi-tenant Tailscale management platform for MSPs"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Brad Goetsch", email = "brad@tailops.dev"},
+    {name = "Brad Goetsch", email = "brad@modernmanagedit.com"},
 ]
 maintainers = [
-    {name = "tailops Team", email = "team@tailops.dev"},
+    {name = "Brad Goetsch", email = "brad@modernmanagedit.com"},
 ]
 keywords = [
     "tailscale",
